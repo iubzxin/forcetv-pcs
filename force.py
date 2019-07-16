@@ -7,6 +7,7 @@ import urllib
 import hashlib
 import logging
 import requests
+import xmltodict
 
 
 class ForceInter(object):
@@ -19,10 +20,12 @@ class ForceInter(object):
         当涉及大量频道信息更改时, 不建议使用接口, 而建议直接修改数据库, 完成后调用同步接口
     """
 
-    def __init__(self, api, username=None, password=None):
+    def __init__(self, api, username=None, password=None, proxy=None):
         self._api = api
         self._user = username
         self._pwd = password
+        if proxy is None: proxy = {}
+        self._proxy = proxy
 
     def __requests(self, params):
         auth_params = {
@@ -41,12 +44,12 @@ class ForceInter(object):
         uri = '{}?{}'.format(self._api.rstrip('?'), urllib.urlencode(params))
         logging.info('Send requests. url={}'.format(uri))
         try:
-            response = requests.get(url=uri)
+            response = requests.get(url=uri, proxies=self._proxy, timeout=5)
         except Exception, e:
             logging.info('Requests error. errmsg={}'.format(e))
-            return
+            raise e
 
-        return response.content
+        return xmltodict.parse(response.content, encoding='utf-8')
 
     def query_server_list(self):
 
