@@ -39,7 +39,6 @@ class ForceInter(object):
         params.update(auth_params)
 
         uri = '{}?{}'.format(self._api.rstrip('?'), urllib.urlencode(params))
-        print uri
         logging.info('Send requests. url={}'.format(uri))
         try:
             response = requests.get(url=uri)
